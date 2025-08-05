@@ -1,0 +1,7 @@
+name: develfish-repo.testing
+luau:
+  aliases:
+    root: .
+actions:
+  test:
+    path: actions/test

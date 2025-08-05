@@ -1,0 +1,1 @@
+require('@root/tests/describe')
