@@ -2,6 +2,8 @@ name: develfish-repo.testing
 luau:
   aliases:
     root: .
+  globals:
+    - array_mt
 actions:
   test:
     path: actions/test
