@@ -1,20 +1,21 @@
+--!strict
+
+local Check = {}
+
 export type Mode = 'positive' | 'negative'
 export type Describe = (name: string) -> (WithIt) -> ()
 export type WithIt = (it: It) -> ()
 export type It = (name: string, mode: Mode?) -> (WithCheck) -> ()
 export type WithCheck = (check: Check) -> ()
-export type Check = {
-  eq: (a: any, b: any, message: string?) -> boolean,
-  neq: (a: any, b: any, message: string?) -> boolean,
-  defined: (a: any, message: string?) -> boolean,
-  absent: (a: any, message: string?) -> boolean,
-}
+export type Check = typeof(Check)
 
 local BACKTRACE_EXCLUSIONS = setmetatable({
   '^./lib/describe:(%d+)$',
   '^__mlua_require:(%d+)$',
   '^lorry_core/src/(.+).rs:(%d+):(%d+)$',
 }, array_mt);
+
+export type Some = number | string | boolean | thread | vector | buffer | {}
 
 local append_traceback = function(error: {})
   local traceback = debug.traceback();
@@ -38,31 +39,46 @@ local append_traceback = function(error: {})
   };
 end
 
-local check: Check = {
-  eq = function(a: any, b: any, message: string?): boolean return assert(a == b, message) end,
-  neq = function(a: any, b: any, message: string?): boolean return assert(a ~= b, message) end,
-  defined = function(v: any, message: string?): boolean return assert(v ~= nil, message) end,
-  absent = function(v: any, message: string?): boolean return assert(v == nil, message) end,
-  assert = function(v: boolean, message: string?): boolean return assert(v, message) end,
-}
+function Check.eq<T>(a: T, b: T, message: string?)
+  assert(a == b, message)
+end
 
+function Check.neq(a: any, b: any, message: string?): boolean
+  return assert(a ~= b, message)
+end
+
+function Check.assert<T>(v: T, message: string?): T
+  return assert(v, message)
+end
+
+function Check.required<T>(v: T?, message: string?): T
+  assert(v ~= nil, message)
+  return v::any
+end
+
+type ErrorDetails = {
+  error: string,
+  traceback: {string},
+}
 
 local function describe(name: string)
   print(name)
   local function it(name: string, mode: Mode?)
     mode = mode or 'positive'
     return function (test: WithCheck)
-      local status, error_details = xpcall(test, append_traceback, check);
+      local status, error_details: ErrorDetails? = xpcall(test, append_traceback, Check);
       local success = mode == 'positive' and status or mode == 'negative' and not status
       if success then
         print("  ✓ " .. name)
-      else
+      elseif (error_details ~= nil) then
         print("  ⨯ " .. name)
         print("    ↳ " .. error_details.error)
         print("      Traceback:")
         for i, row in error_details.traceback do
           print("        " .. row)
         end
+      else
+        print("  ⨯ " .. name)
       end
     end
   end

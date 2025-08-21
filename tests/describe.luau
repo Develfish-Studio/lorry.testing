@@ -1,3 +1,5 @@
+--!strict
+
 local describe = require('@root/lib/describe')
 
 describe("testing framework") (
@@ -18,8 +20,7 @@ describe("testing framework") (
       function (check)
         check.eq('1', '1', 'should be equal')
         check.neq(1, '1', 'should not be equal')
-        check.defined('a', 'should be defined')
-        check.absent(nil, 'should not be defined')
+        check.required('a', 'should be defined')
         check.assert(1 == 1, 'should be correct')
       end
     )
