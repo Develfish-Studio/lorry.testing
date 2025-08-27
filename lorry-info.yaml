@@ -1,4 +1,4 @@
-name: develfish-repo.testing
+name: lorry.testing
 luau:
   aliases:
     root: .
