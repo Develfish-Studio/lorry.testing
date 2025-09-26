@@ -3,7 +3,7 @@
 local Check = {}
 
 export type Mode = 'positive' | 'negative'
-export type Describe = (name: string) -> (WithIt) -> ()
+export type Describe = (name: string) -> (WithIt) -> () -> ()
 export type WithIt = (it: It) -> ()
 export type It = (name: string, mode: Mode?) -> (WithCheck) -> ()
 export type WithCheck = (check: Check) -> ()
@@ -57,12 +57,11 @@ function Check.required<T>(v: T?, message: string?): T
 end
 
 type ErrorDetails = {
-  error: string,
+  error: any,
   traceback: {string},
 }
 
 local function describe(name: string)
-  print(name)
   local function it(name: string, mode: Mode?)
     mode = mode or 'positive'
     return function (test: WithCheck)
@@ -72,7 +71,7 @@ local function describe(name: string)
         print("  ✓ " .. name)
       elseif (error_details ~= nil) then
         print("  ⨯ " .. name)
-        print("    ↳ " .. error_details.error)
+        print("    ↳ " .. tostring(error_details.error))
         print("      Traceback:")
         for i, row in error_details.traceback do
           print("        " .. row)
@@ -84,7 +83,10 @@ local function describe(name: string)
   end
 
   return function (strategy: WithIt)
-    strategy(it)
+    return function()
+      print(name)
+      strategy(it)
+    end
   end
 end
 

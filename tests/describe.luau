@@ -2,7 +2,7 @@
 
 local describe = require('@root/lib/describe')
 
-describe("testing framework") (
+return describe("testing framework") (
   function (it)
     it("should provide ability for positive testing", "positive") (
       function (check)
@@ -26,5 +26,3 @@ describe("testing framework") (
     )
   end
 )
-
-return {}
