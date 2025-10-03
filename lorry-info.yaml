@@ -4,6 +4,3 @@ luau:
     root: .
   globals:
     - array_mt
-actions:
-  test:
-    path: actions/test
