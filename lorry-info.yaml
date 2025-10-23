@@ -1,6 +1,4 @@
 name: lorry.testing
 luau:
-  aliases:
-    root: .
   globals:
     - array_mt
